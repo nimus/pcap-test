@@ -1,8 +1,12 @@
 #include <pcap.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <netinet/in.h>
 
 #define ETHER_ADDR_LEN 6 
+// #define IPPROTO_TCP 6
+// #define IPPROTO_UDP 17
+
 
 struct libnet_ethernet_hdr
 {
@@ -73,15 +77,35 @@ void info_eth(const u_char* packet) {
 
 }
 
+int check_ipproto(const u_char* packet){
+
+	struct libnet_ipv4_hdr* p;
+	packet = packet + sizeof(struct libnet_ethernet_hdr);
+	p = (struct libnet_ipv4_hdr*)packet;
+
+	if((*p).ip_p = IPPROTO_TCP)
+		return 1;
+	else return -1;
+}
+		
+
 void info_ip(const u_char* packet) {
 
 	struct libnet_ipv4_hdr* p;
-	p = (libnet_ipv4_hdr*)packet;
+	p = (struct libnet_ipv4_hdr*)packet;
 
 	printf("2. IP Header\n");
 	printf("src ip : %s\n", inet_ntoa((*p).ip_src));
 	printf("dst ip : %s\n", inet_ntoa((*p).ip_dst));
 
+/*
+ 	if((*p).ip_p = IPPROTO_TCP)
+		printf("TCP OK\n");
+	else if((*p).ip_p = IPPROTO_UDP)
+		printf("UDP OK\n");
+	else printf("I DON'T KNOW\n");
+*/
+	
 	printf("\n");
 
 }
@@ -89,7 +113,7 @@ void info_ip(const u_char* packet) {
 void info_tcp(const u_char* packet) {
 
 	struct libnet_tcp_hdr* p;
-	p = (libnet_tcp_hdr*)packet;
+	p = (struct libnet_tcp_hdr*)packet;
 
 	printf("3. TCP Header\n");
 	printf("src port : %d\n", ntohs((*p).th_sport));
@@ -131,7 +155,7 @@ int main(int argc, char* argv[]) {
     while (true) {
         struct pcap_pkthdr* header;
         const u_char* packet;
-        int res = pcap_next_ex(handle, &header, &packet);
+	int res = pcap_next_ex(handle, &header, &packet);
         if (res == 0) continue;
         if (res == -1 || res == -2) {
             printf("pcap_next_ex return %d(%s)\n", res, pcap_geterr(handle));
@@ -140,6 +164,11 @@ int main(int argc, char* argv[]) {
         
         //       printf("%u bytes captured\n", header->caplen);
 
+
+	printf("------------------------------\n\n");
+
+	if(check_ipproto(packet) == 1){
+	
 	info_eth(packet);
 	
 	packet = packet + sizeof(struct libnet_ethernet_hdr);
@@ -153,6 +182,13 @@ int main(int argc, char* argv[]) {
 	packet = packet + sizeof(struct libnet_tcp_hdr);
 	
 	info_data(packet);
+
+
+	printf("------------------------------\n");
+	
+	}
+
+	else printf("TCP packet이 아닙니다.");
 
     }
 
