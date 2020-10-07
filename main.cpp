@@ -34,6 +34,16 @@ struct libnet_tcp_hdr
      uint16_t th_dport;       /* destination port */
      uint32_t th_seq;         /* sequence number */
      uint32_t th_ack;         /* acknowledgement number */
+/*
+#if (LIBNET_LIL_ENDIAN)
+ 	uint8_t th_x2:4, th_off:4;
+#endif
+#if (LIBNET_BIG_ENDIAN)
+	uint8_t th_off:4; th_x2:4;
+#endif 
+*/
+     uint8_t th_off:4;	      /* data offset */
+
      uint8_t  th_flags;       /* control flags */
      uint16_t th_win;         /* window */
      uint16_t th_sum;         /* checksum */
@@ -163,6 +173,9 @@ int main(int argc, char* argv[]) {
         
         //       printf("%u bytes captured\n", header->caplen);
 
+	
+	libnet_ipv4_hdr ip;
+	libnet_tcp_hdr tcp;
 
 	printf("------------------------------\n\n");
 
@@ -174,12 +187,14 @@ int main(int argc, char* argv[]) {
 	
 	info_ip(packet);
 	
-	packet = packet + sizeof(struct libnet_ipv4_hdr);
-	
+	//packet = packet + sizeof(struct libnet_ipv4_hdr);
+	packet = packet + (ip.ip_len)*4;
+
 	info_tcp(packet);
 	
-	packet = packet + sizeof(struct libnet_tcp_hdr);
-	
+	//packet = packet + sizeof(struct libnet_tcp_hdr);
+	packet = packet + (tcp.th_off)*4;
+
 	info_data(packet);
 
 	printf("------------------------------\n");
