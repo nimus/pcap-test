@@ -174,8 +174,8 @@ int main(int argc, char* argv[]) {
         //       printf("%u bytes captured\n", header->caplen);
 
 	
-	libnet_ipv4_hdr ip;
-	libnet_tcp_hdr tcp;
+	struct libnet_ipv4_hdr ip;
+	struct libnet_tcp_hdr tcp;
 
 	printf("------------------------------\n\n");
 
