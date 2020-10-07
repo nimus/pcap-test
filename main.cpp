@@ -127,7 +127,6 @@ void info_data(const u_char* packet) {
 
 	printf("4. Payload(Data)\n");
 
-
 	printf("hexadecimal value : ");
 
 	for(int i=0; i<16; i++){
@@ -182,7 +181,6 @@ int main(int argc, char* argv[]) {
 	packet = packet + sizeof(struct libnet_tcp_hdr);
 	
 	info_data(packet);
-
 
 	printf("------------------------------\n");
 	
